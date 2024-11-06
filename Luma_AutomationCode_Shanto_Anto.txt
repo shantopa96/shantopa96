@@ -1,0 +1,304 @@
+package Project_A;
+import java.awt.RenderingHints.Key;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
+import javax.xml.xpath.XPathExpression;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.io.FileHandler;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+//import net.bytebuddy.implementation.bind.annotation.DefaultCall.Binder.DefaultMethodLocator.Implicit;
+
+public class Luma {
+	
+	static WebDriver driver;
+	static String firstname,lastname,email,password,cnfm;
+	@BeforeTest
+	public void setup()
+	{
+		driver= new ChromeDriver();
+		driver.get("https://magento.softwaretestingboard.com/");
+		driver.manage().window().maximize();
+	}
+	@Test(priority=-1)
+	public void credentials() throws IOException, InterruptedException
+	{
+		FileInputStream fis=new FileInputStream("F:\\Automation_project\\userpasswrod.xlsx");
+		XSSFWorkbook wb= new XSSFWorkbook(fis);
+		XSSFSheet sh=wb.getSheet("sheet1");
+		firstname=sh.getRow(1).getCell(0).getStringCellValue();
+		lastname=sh.getRow(1).getCell(1).getStringCellValue();
+		email=sh.getRow(1).getCell(2).getStringCellValue();
+		password=sh.getRow(1).getCell(3).getStringCellValue();
+		cnfm=sh.getRow(1).getCell(4).getStringCellValue();	
+	}
+	@Test
+	public void account_creation() throws InterruptedException 
+	{
+		
+		driver.findElement(By.xpath("/html/body/div[2]/header/div[1]/div/ul/li[3]/a")).click();
+		driver.findElement(By.id("firstname")).sendKeys(firstname);
+		Thread.sleep(2000);
+		driver.findElement(By.id("lastname")).sendKeys(lastname);
+		Thread.sleep(2000);
+		driver.findElement(By.name("email")).sendKeys(email);
+		Thread.sleep(2000);
+		driver.findElement(By.id("password")).sendKeys(password);
+		Thread.sleep(4000);
+		driver.findElement(By.id("password-confirmation")).sendKeys(cnfm);
+		JavascriptExecutor js=(JavascriptExecutor) driver;
+		js.executeScript("window.scrollBy(0,500)");
+		WebDriverWait wait=new WebDriverWait(driver,Duration.ofSeconds(5));
+		wait.until(ExpectedConditions.visibilityOf(driver.findElement(By.xpath("//button[@class='action submit primary']"))));
+		driver.findElement(By.xpath("//button[@class='action submit primary']")).click();
+		Thread.sleep(8000);
+	}
+	@Test(priority=1)
+	public void signout() throws InterruptedException
+	{
+		driver.findElement(By.cssSelector("div[class='panel header'] button[type='button']")).click();
+		Thread.sleep(2000);
+		driver.findElement(By.cssSelector("div[aria-hidden='false'] li[data-label='or'] a")).click();
+		Thread.sleep(2000); 
+	} 
+	@Test(priority =2)
+	public void signin() throws InterruptedException
+	{
+		driver.navigate().to("https://magento.softwaretestingboard.com/");
+		JavascriptExecutor js=(JavascriptExecutor) driver;
+		WebDriverWait wait=new WebDriverWait(driver,Duration.ofSeconds(5));
+		//wait.until(ExpectedConditions.visibilityOf(driver.findElement(By.xpath("/html[1]/body[1]/div[2]/header[1]/div[1]/div[1]/ul[1]/li[2]/a[1]"))));
+		//driver.manage().timeouts().implicitlyWait(10,TimeUnit.SECONDS);
+		//js.executeScript("window.scrollBy(0,800)");
+		driver.manage().timeouts().implicitlyWait(10,TimeUnit.SECONDS);
+		driver.findElement(By.cssSelector("div[class='panel header'] li[data-label='or'] a")).click();
+		js.executeScript("window.scrollBy(0,400)");
+		driver.findElement(By.id("email")).sendKeys(email);
+		Thread.sleep(2000);
+		driver.findElement(By.xpath("//input[@name='login[password]']")).sendKeys(password);
+		Thread.sleep(2000);
+		js.executeScript("window.scrollBy(0,500)");
+		wait.until(ExpectedConditions.visibilityOf(driver.findElement(By.xpath("//button[@type='submit'][@class='action login primary']"))));
+		driver.findElement(By.xpath("//button[@type='submit'][@class='action login primary']")).click();
+	} 
+	@Test(priority=3)
+	public void order_jacket() throws InterruptedException
+	{
+		JavascriptExecutor js=(JavascriptExecutor) driver;
+		driver.navigate().to("https://magento.softwaretestingboard.com/customer/account/");
+		//js.executeScript("window.scrollBy(0,50)");
+		WebDriverWait wait=new WebDriverWait(driver,Duration.ofSeconds(10));
+		//wait.until(ExpectedConditions.visibilityOf(driver.findElement(By.xpath("//a[@id='ui-id-3']"))));
+		js.executeScript("window.scrollBy(0,100)");
+	    driver.findElement(By.cssSelector("a[id='ui-id-3'] span:nth-child(1)")).click();//whats new
+	    js.executeScript("window.scrollBy(0,400)");
+	   // Thread.sleep(2000);
+	    //(//a[@href='https://magento.softwaretestingboard.com/women/tops-women/jackets-women.html'])[2]
+	    wait.until(ExpectedConditions.visibilityOf(driver.findElement(By.cssSelector("body>div:nth-child(5)>main:nth-child(4)>div:nth-child(5)>div:nth-child(2)>div:nth-child(1)>div:nth-child(1)>ul:nth-child(2)>li:nth-child(2)>a:nth-child(1)"))));//jacket
+	    driver.findElement(By.cssSelector("body>div:nth-child(5)>main:nth-child(4)>div:nth-child(5)>div:nth-child(2)>div:nth-child(1)>div:nth-child(1)>ul:nth-child(2)>li:nth-child(2)>a:nth-child(1)")).click();
+	    Thread.sleep(2000);
+	    js.executeScript("window.scrollBy(0,600)");
+	  	WebElement juno=driver.findElement(By.cssSelector("img[alt='Juno Jacket']"));
+	  	wait.until(ExpectedConditions.visibilityOf(driver.findElement(By.cssSelector("img[alt='Juno Jacket']"))));
+	  	Actions actions=new Actions(driver);
+	  	actions.doubleClick(juno).perform();//click on image
+	  	Thread.sleep(4000);
+	  	js.executeScript("window.scrollBy(0,500)");
+	  	wait.until(ExpectedConditions.visibilityOf(driver.findElement(By.id("option-label-size-143-item-168"))));
+	  	driver.findElement(By.id("option-label-size-143-item-168")).click();//size
+	  	Thread.sleep(4000);
+	  	driver.findElement(By.id("option-label-color-93-item-57")).click();//color
+	  	Thread.sleep(4000);
+	  	driver.findElement(By.id("qty")).clear();
+	  	driver.findElement(By.id("qty")).sendKeys("2");//quantity
+	  	wait.until(ExpectedConditions.visibilityOf(driver.findElement(By.id("product-addtocart-button"))));
+	  	driver.findElement(By.id("product-addtocart-button")).click();
+	  	//js.executeScript("window.scrollBy(0,200)");
+	  	Thread.sleep(4000);
+	} 
+	@Test(priority=4)
+	public void purchase() throws InterruptedException
+	{
+		JavascriptExecutor js=(JavascriptExecutor) driver;
+		js.executeScript("window.scrollBy(0,-600)");
+		//WebDriverWait wait=new WebDriverWait(driver,Duration.ofSeconds(5));
+		//wait.until(ExpectedConditions.visibilityOf(driver.findElement(By.cssSelector("span[data-bind=\"css: { empty: !!getCartParam('summary_count') == false && !isLoading() }, blockLoader: isLoading\"]"))));
+		driver.findElement(By.cssSelector("span[data-bind=\"css: { empty: !!getCartParam('summary_count') == false && !isLoading() }, blockLoader: isLoading\"]")).click();
+		Thread.sleep(2000);
+		js.executeScript("window.scrollBy(0,100)");
+		driver.findElement(By.id("top-cart-btn-checkout")).click();;
+		driver.manage().timeouts().implicitlyWait(5,TimeUnit.SECONDS);
+		//WebElemnt adr=driver.findElement(By.id("//input[@name='street[0]']"));
+		driver.findElement(By.name("street[0]")).sendKeys("Venginissery.sankaramangalam");
+		Thread.sleep(2000);
+		driver.findElement(By.name("city")).sendKeys("Thrissur");
+		Thread.sleep(2000);
+		js.executeScript("window.scrollBy(0,50)");
+		WebElement state=driver.findElement(By.xpath("//select[@name='region_id']"));   
+		state.click();
+		Select sel=new Select(state);
+		sel.selectByVisibleText("Indiana");
+		Thread.sleep(2000);
+		driver.findElement(By.name("postcode")).sendKeys("12345-6789");
+		Thread.sleep(2000);
+		js.executeScript("window.scrollBy(0,500)");
+		WebElement cntry=driver.findElement(By.name("country_id"));
+		Thread.sleep(2000);
+		cntry.click();
+		Select sel2=new Select(cntry);
+		sel2.selectByVisibleText("Togo");
+		Thread.sleep(2000);
+		driver.findElement(By.name("telephone")).sendKeys("3456129078");
+		//js.executeScript("window.scrollBy(0,50)");
+		Thread.sleep(2000);
+		//driver.findElement(By.id("//input[@name='ko_unique_5']")).click();
+		//Thread.sleep(2000);
+		driver.findElement(By.xpath("//button[@data-role='opc-continue']")).click();
+		Thread.sleep(5000);
+		//js.executeScript("window.scrollBy(0,500)");
+		WebElement clk=driver.findElement(By.xpath("/html/body/div[3]/main/div[2]/div/div[2]/div[4]/ol/li[3]/div/form/fieldset/div[1]/div/div/div[2]/div[2]/div[4]/div/button"));
+		//wait.until(ExpectedConditions.elementToBeClickable(clk));
+		clk.click();
+	}
+	@Test(priority=5)
+	public void screenshot() throws IOException, InterruptedException
+	{
+		JavascriptExecutor js=(JavascriptExecutor) driver;
+		js.executeScript("window.scrollBy(0,400)");	
+		Thread.sleep(3000);
+		TakesScreenshot screenshot = (TakesScreenshot)driver;
+		//Saving the screenshot in desired location
+		File srcs = screenshot.getScreenshotAs(OutputType.FILE);
+		FileHandler.copy(srcs, new File("F:\\Automation_project\\order_summary.png"));
+		Thread.sleep(4000);
+		driver.findElement(By.cssSelector("a[class='action primary continue'] span")).click();
+	} 
+	@Test(priority=6)
+	public void compare() throws InterruptedException
+	{
+		JavascriptExecutor js=(JavascriptExecutor) driver;
+		driver.navigate().to("https://magento.softwaretestingboard.com/");
+		Thread.sleep(2000);
+		driver.findElement(By.cssSelector("a[id='ui-id-5'] span[class='ui-menu-icon ui-icon ui-icon-carat-1-e']")).click();//men
+		Thread.sleep(2000);
+		js.executeScript("window.scrollBy(0,500)");
+		driver.findElement(By.cssSelector("div[class='block filter'] li:nth-child(2) a:nth-child(1)")).click();//bottom
+		//WebDriverWait wait=new WebDriverWait(driver,Duration.ofSeconds(5));
+		//wait.until(ExpectedConditions.visibilityOf(driver.findElement(By.cssSelector("div[class='product-addto-links'] a[class='action tocompare'] span"))));
+		js.executeScript("window.scrollBy(0,500)");
+		driver.findElement(By.cssSelector("body>div:nth-child(5)>main:nth-child(4)>div:nth-child(4)>div:nth-child(1)>div:nth-child(4)>ol:nth-child(1)>li:nth-child(1)>div:nth-child(1)>div:nth-child(2)>strong:nth-child(1)>a:nth-child(1)")).click();
+		js.executeScript("window.scrollBy(0,200)");	//imag
+		Thread.sleep(2000);
+		driver.findElement(By.cssSelector("div[class='product-addto-links'] a[class='action tocompare'] span")).click();//compare
+		Thread.sleep(2000);
+		driver.navigate().to("https://magento.softwaretestingboard.com/");
+		Thread.sleep(2000);
+		driver.findElement(By.cssSelector("a[id='ui-id-5'] span[class='ui-menu-icon ui-icon ui-icon-carat-1-e']")).click();//men
+		Thread.sleep(2000);
+		js.executeScript("window.scrollBy(0,500)");
+		driver.findElement(By.cssSelector("div[class='block filter'] li:nth-child(2) a:nth-child(1)")).click();//bottom
+		driver.findElement(By.cssSelector("body>div:nth-child(5)>main:nth-child(4)>div:nth-child(4)>div:nth-child(1)>div:nth-child(4)>ol:nth-child(1)>li:nth-child(4)>div:nth-child(1)>div:nth-child(2)>strong:nth-child(1)>a:nth-child(1)")).click();
+		js.executeScript("window.scrollBy(0,200)");	//imag
+		driver.findElement(By.cssSelector("div[class='product-addto-links'] a[class='action tocompare'] span")).click();
+		Thread.sleep(2000);
+		js.executeScript("window.scrollBy(0,-600)");
+		driver.findElement(By.cssSelector("a[id='ui-id-3'] span:nth-child(1)")).click();//wats new
+		js.executeScript("window.scrollBy(0,800)");	
+		Thread.sleep(4000);
+		driver.findElement(By.cssSelector("a[class='action compare primary'] span")).click();
+		js.executeScript("window.scrollBy(0,800)");
+		Thread.sleep(4000);
+		}
+	@Test(priority=7)
+	public void review() throws InterruptedException
+	{
+		JavascriptExecutor js=(JavascriptExecutor) driver;
+		driver.navigate().to("https://magento.softwaretestingboard.com/customer/account/");
+		//js.executeScript("window.scrollBy(0,50)");
+		WebDriverWait wait=new WebDriverWait(driver,Duration.ofSeconds(10));
+		//wait.until(ExpectedConditions.visibilityOf(driver.findElement(By.xpath("//a[@id='ui-id-3']"))));
+		js.executeScript("window.scrollBy(0,100)");
+	    driver.findElement(By.cssSelector("a[id='ui-id-3'] span:nth-child(1)")).click();//whats new
+	    js.executeScript("window.scrollBy(0,400)");
+	   // Thread.sleep(2000);
+	    //(//a[@href='https://magento.softwaretestingboard.com/women/tops-women/jackets-women.html'])[2]
+	    wait.until(ExpectedConditions.visibilityOf(driver.findElement(By.cssSelector("body>div:nth-child(5)>main:nth-child(4)>div:nth-child(5)>div:nth-child(2)>div:nth-child(1)>div:nth-child(1)>ul:nth-child(2)>li:nth-child(2)>a:nth-child(1)"))));//jacket
+	    driver.findElement(By.cssSelector("body>div:nth-child(5)>main:nth-child(4)>div:nth-child(5)>div:nth-child(2)>div:nth-child(1)>div:nth-child(1)>ul:nth-child(2)>li:nth-child(2)>a:nth-child(1)")).click();
+	    Thread.sleep(2000);
+	    js.executeScript("window.scrollBy(0,600)");
+	  	WebElement juno=driver.findElement(By.cssSelector("img[alt='Juno Jacket']"));
+	  	wait.until(ExpectedConditions.visibilityOf(driver.findElement(By.cssSelector("img[alt='Juno Jacket']"))));
+	  	Actions actions=new Actions(driver);
+	  	actions.doubleClick(juno).perform();//click on image
+	  	Thread.sleep(4000);
+	  	//js.executeScript("window.scrollBy(0,550)");
+	  	driver.findElement(By.cssSelector(".action.add")).click();
+	  	Thread.sleep(2000);
+	  //  WebElement star=
+	  	js.executeScript("window.scrollBy(0,750)");
+	  	Thread.sleep(2000);
+	    driver.findElement(By.xpath("//*[@id=\"Rating_1_label\"]")).click();  
+	    //Actions act= new Actions(driver);
+	   // act.moveToElement(star).click();
+	  	Thread.sleep(2000);
+	  	driver.findElement(By.id("summary_field")).sendKeys("Poor Product");
+	  	driver.findElement(By.cssSelector("#review_field")).sendKeys("my jacket  was tore after one week use");
+	  	Thread.sleep(2000); 
+	  	driver.findElement(By.cssSelector("button[class='action submit primary'] span")).click();
+	  	Thread.sleep(2000); 
+	} 
+	@Test(priority=8)
+	public void wishlist() throws InterruptedException
+	{
+		JavascriptExecutor js=(JavascriptExecutor) driver;
+		driver.navigate().to("https://magento.softwaretestingboard.com");
+		driver.findElement(By.cssSelector("a[id='ui-id-6'] span:nth-child(2)")).click();
+		Thread.sleep(4000); 
+		//WebElement bag=
+		driver.findElement(By.linkText("Bags")).click();
+		//Actions act=new Actions(driver);
+		//act.doubleClick(bag);
+		js.executeScript("window.scrollBy(0,350)");
+		driver.findElement(By.cssSelector("body>div:nth-child(5)>main:nth-child(4)>div:nth-child(4)>div:nth-child(1)>div:nth-child(4)>ol:nth-child(1)>li:nth-child(1)>div:nth-child(1)>div:nth-child(2)>strong:nth-child(1)>a:nth-child(1)")).click();
+		Thread.sleep(2000); 
+		js.executeScript("window.scrollBy(0,250)");
+		driver.findElement(By.cssSelector("a[class='action towishlist'] span")).click();
+		Thread.sleep(2000);
+		js.executeScript("window.scrollBy(0,150)");
+		driver.findElement(By.cssSelector("button[title='Share Wish List'] span")).click();
+		Thread.sleep(2000);
+		js.executeScript("window.scrollBy(0,250)");
+		driver.findElement(By.id("email_address")).sendKeys(email);
+		driver.findElement(By.id("message")).sendKeys("I recommend this");
+		Thread.sleep(2000);
+		driver.findElement(By.cssSelector("button[title='Share Wish List'] span")).click();
+		Thread.sleep(4000);
+	} 
+	@AfterTest
+	public void tearout()
+	{
+		driver.close();
+	}
+}
